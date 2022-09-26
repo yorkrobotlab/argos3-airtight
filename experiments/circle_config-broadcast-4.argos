@@ -1,0 +1,134 @@
+<?xml version="1.0" ?>
+<argos-configuration>
+
+  <!-- ************************* -->
+  <!-- * General configuration * -->
+  <!-- ************************* -->
+  <framework>
+    <system threads="0" />
+    <experiment length="240" ticks_per_second="100" random_seed="4" />
+  </framework>
+
+  <!-- *************** -->
+  <!-- * Controllers * -->
+  <!-- *************** -->
+  <controllers>
+    <circle_controller library="build/controllers/circle/libcircle_controller"
+                       id="circle_controller">
+      <actuators>
+        <pipuck_differential_drive implementation="default" />
+        <slot_radio implementation="naive_broadcast" medium="a1" />
+        <big_leds implementation="default" />
+      </actuators>
+      <sensors>
+        <slot_radio implementation="naive_broadcast" medium="a1" show_rays="true"/>
+      </sensors>
+    </circle_controller>
+  </controllers>
+
+  <!-- ****************** -->
+  <!-- * Loop functions * -->
+  <!-- ****************** -->
+  <loop_functions library="build/loop_functions/libcircle_logging_loop_functions"
+                  label="circle_logging_loop_functions" />
+
+  <!-- *********************** -->
+  <!-- * Arena configuration * -->
+  <!-- *********************** -->
+  <arena size="20, 20, 1">
+
+    <box id="wall_north" size="20,0.1,0.25" movable="false">
+      <body position="0,10,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_south" size="20,0.1,0.25" movable="false">
+      <body position="0,-10,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_east" size="0.1,20,0.25" movable="false">
+      <body position="10,0,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_west" size="0.1,20,0.25" movable="false">
+      <body position="-10,0,0" orientation="0,0,0" />
+    </box>
+
+    <pipuck id="node0">
+      <body position="0,1,0" orientation="90,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <naive_broadcast numRepeats="13" />
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node1">
+      <body position="0.866025403784439,0.5,0" orientation="30,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <naive_broadcast numRepeats="13" />
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node2">
+      <body position="0.866025403784439,-0.5,0" orientation="330,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <naive_broadcast numRepeats="13" />
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node3">
+      <body position="1.22464679914735e-16,-1,0" orientation="270,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <naive_broadcast numRepeats="13" />
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node4">
+      <body position="-0.866025403784438,-0.5,0" orientation="210,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <naive_broadcast numRepeats="13" />
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node5">
+      <body position="-0.866025403784439,0.5,0" orientation="150,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <naive_broadcast numRepeats="13" />
+        </params>
+      </controller>
+    </pipuck>
+
+  </arena>
+
+  <!-- ******************* -->
+  <!-- * Physics engines * -->
+  <!-- ******************* -->
+  <physics_engines>
+    <dynamics2d id="dyn2d" />
+  </physics_engines>
+
+  <!-- ********* -->
+  <!-- * Media * -->
+  <!-- ********* -->
+  <media>
+    <slot_radio id="a1" />
+  </media>
+
+  <!-- ****************** -->
+  <!-- * Visualization * -->
+  <!-- ****************** -->
+  <visualization>
+    <qt-opengl show_boundary="false">
+      <user_functions library="build/loop_functions/libcircle_opengl_functions"
+                      label="circle_opengl_functions" />
+      <camera>
+        <placements>
+          <placement index="0" position="0,0,50" look_at="0,0,0" up="1,0,0" lens_focal_length="65" />
+        </placements>
+      </camera>
+    </qt-opengl>
+  </visualization>
+
+</argos-configuration>
+

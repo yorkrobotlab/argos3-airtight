@@ -1,0 +1,200 @@
+<?xml version="1.0" ?>
+<argos-configuration>
+
+  <!-- ************************* -->
+  <!-- * General configuration * -->
+  <!-- ************************* -->
+  <framework>
+    <system threads="0" />
+    <experiment length="240" ticks_per_second="100" random_seed="5" />
+  </framework>
+
+  <!-- *************** -->
+  <!-- * Controllers * -->
+  <!-- *************** -->
+  <controllers>
+    <circle_controller library="build/controllers/circle/libcircle_controller"
+                       id="circle_controller">
+      <actuators>
+        <pipuck_differential_drive implementation="default" />
+        <slot_radio implementation="airtight" medium="a1" />
+        <big_leds implementation="default" />
+      </actuators>
+      <sensors>
+        <slot_radio implementation="airtight" medium="a1" show_rays="true"/>
+      </sensors>
+    </circle_controller>
+  </controllers>
+
+  <!-- ****************** -->
+  <!-- * Loop functions * -->
+  <!-- ****************** -->
+  <loop_functions library="build/loop_functions/libcircle_logging_loop_functions"
+                  label="circle_logging_loop_functions" />
+
+  <!-- *********************** -->
+  <!-- * Arena configuration * -->
+  <!-- *********************** -->
+  <arena size="20, 20, 1">
+
+    <box id="wall_north" size="20,0.1,0.25" movable="false">
+      <body position="0,10,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_south" size="20,0.1,0.25" movable="false">
+      <body position="0,-10,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_east" size="0.1,20,0.25" movable="false">
+      <body position="10,0,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_west" size="0.1,20,0.25" movable="false">
+      <body position="-10,0,0" orientation="0,0,0" />
+    </box>
+
+    <pipuck id="node0">
+      <body position="0,1,0" orientation="90,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <airtight slotTable="1,0,0,0,0,0">
+            <buffer name="fwdLed21-0" criticality=0 recipient="node1" fwdFrom="node5" fwdBuffer="fwdLed21-5" RLo="19" RHi="-1" period="100" />
+            <buffer name="fwdLed32-0" criticality=0 recipient="node1" fwdFrom="node5" fwdBuffer="fwdLed32-5" RLo="31" RHi="-1" period="100" />
+            <buffer name="fwdLed43-0" criticality=0 recipient="node1" fwdFrom="node5" fwdBuffer="fwdLed43-5" RLo="37" RHi="-1" period="100" />
+            <buffer name="fwdLed54-0" criticality=0 recipient="node1" fwdFrom="node5" fwdBuffer="fwdLed54-5" RLo="43" RHi="-1" period="100" />
+            <buffer name="fwdLed05-0" criticality=0 recipient="node1" alias="led" RLo="55" RHi="-1" period="100" />
+            <buffer name="fwdMov21-0" criticality=1 recipient="node1" fwdFrom="node5" fwdBuffer="fwdMov21-5" RLo="61" RHi="157" period="500" />
+            <buffer name="fwdMov32-0" criticality=1 recipient="node1" fwdFrom="node5" fwdBuffer="fwdMov32-5" RLo="67" RHi="175" period="500" />
+            <buffer name="fwdMov43-0" criticality=1 recipient="node1" fwdFrom="node5" fwdBuffer="fwdMov43-5" RLo="79" RHi="187" period="500" />
+            <buffer name="fwdMov54-0" criticality=1 recipient="node1" fwdFrom="node5" fwdBuffer="fwdMov54-5" RLo="85" RHi="199" period="500" />
+            <buffer name="fwdMov05-0" criticality=1 recipient="node1" alias="mov" RLo="91" RHi="211" period="500" />
+          </airtight>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node1">
+      <body position="0.866025403784439,0.5,0" orientation="30,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <airtight slotTable="0,1,0,0,0,0">
+            <buffer name="fwdLed32-1" criticality=0 recipient="node2" fwdFrom="node0" fwdBuffer="fwdLed32-0" RLo="19" RHi="-1" period="100" />
+            <buffer name="fwdLed43-1" criticality=0 recipient="node2" fwdFrom="node0" fwdBuffer="fwdLed43-0" RLo="31" RHi="-1" period="100" />
+            <buffer name="fwdLed54-1" criticality=0 recipient="node2" fwdFrom="node0" fwdBuffer="fwdLed54-0" RLo="37" RHi="-1" period="100" />
+            <buffer name="fwdLed05-1" criticality=0 recipient="node2" fwdFrom="node0" fwdBuffer="fwdLed05-0" RLo="43" RHi="-1" period="100" />
+            <buffer name="fwdLed10-1" criticality=0 recipient="node2" alias="led" RLo="55" RHi="-1" period="100" />
+            <buffer name="fwdMov32-1" criticality=1 recipient="node2" fwdFrom="node0" fwdBuffer="fwdMov32-0" RLo="61" RHi="157" period="500" />
+            <buffer name="fwdMov43-1" criticality=1 recipient="node2" fwdFrom="node0" fwdBuffer="fwdMov43-0" RLo="67" RHi="175" period="500" />
+            <buffer name="fwdMov54-1" criticality=1 recipient="node2" fwdFrom="node0" fwdBuffer="fwdMov54-0" RLo="79" RHi="187" period="500" />
+            <buffer name="fwdMov05-1" criticality=1 recipient="node2" fwdFrom="node0" fwdBuffer="fwdMov05-0" RLo="85" RHi="199" period="500" />
+            <buffer name="fwdMov10-1" criticality=1 recipient="node2" alias="mov" RLo="91" RHi="211" period="500" />
+          </airtight>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node2">
+      <body position="0.866025403784439,-0.5,0" orientation="330,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <airtight slotTable="0,0,1,0,0,0">
+            <buffer name="fwdLed43-2" criticality=0 recipient="node3" fwdFrom="node1" fwdBuffer="fwdLed43-1" RLo="19" RHi="-1" period="100" />
+            <buffer name="fwdLed54-2" criticality=0 recipient="node3" fwdFrom="node1" fwdBuffer="fwdLed54-1" RLo="31" RHi="-1" period="100" />
+            <buffer name="fwdLed05-2" criticality=0 recipient="node3" fwdFrom="node1" fwdBuffer="fwdLed05-1" RLo="37" RHi="-1" period="100" />
+            <buffer name="fwdLed10-2" criticality=0 recipient="node3" fwdFrom="node1" fwdBuffer="fwdLed10-1" RLo="43" RHi="-1" period="100" />
+            <buffer name="fwdLed21-2" criticality=0 recipient="node3" alias="led" RLo="55" RHi="-1" period="100" />
+            <buffer name="fwdMov43-2" criticality=1 recipient="node3" fwdFrom="node1" fwdBuffer="fwdMov43-1" RLo="61" RHi="157" period="500" />
+            <buffer name="fwdMov54-2" criticality=1 recipient="node3" fwdFrom="node1" fwdBuffer="fwdMov54-1" RLo="67" RHi="175" period="500" />
+            <buffer name="fwdMov05-2" criticality=1 recipient="node3" fwdFrom="node1" fwdBuffer="fwdMov05-1" RLo="79" RHi="187" period="500" />
+            <buffer name="fwdMov10-2" criticality=1 recipient="node3" fwdFrom="node1" fwdBuffer="fwdMov10-1" RLo="85" RHi="199" period="500" />
+            <buffer name="fwdMov21-2" criticality=1 recipient="node3" alias="mov" RLo="91" RHi="211" period="500" />
+          </airtight>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node3">
+      <body position="1.22464679914735e-16,-1,0" orientation="270,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <airtight slotTable="0,0,0,1,0,0">
+            <buffer name="fwdLed54-3" criticality=0 recipient="node4" fwdFrom="node2" fwdBuffer="fwdLed54-2" RLo="19" RHi="-1" period="100" />
+            <buffer name="fwdLed05-3" criticality=0 recipient="node4" fwdFrom="node2" fwdBuffer="fwdLed05-2" RLo="31" RHi="-1" period="100" />
+            <buffer name="fwdLed10-3" criticality=0 recipient="node4" fwdFrom="node2" fwdBuffer="fwdLed10-2" RLo="37" RHi="-1" period="100" />
+            <buffer name="fwdLed21-3" criticality=0 recipient="node4" fwdFrom="node2" fwdBuffer="fwdLed21-2" RLo="43" RHi="-1" period="100" />
+            <buffer name="fwdLed32-3" criticality=0 recipient="node4" alias="led" RLo="55" RHi="-1" period="100" />
+            <buffer name="fwdMov54-3" criticality=1 recipient="node4" fwdFrom="node2" fwdBuffer="fwdMov54-2" RLo="61" RHi="157" period="500" />
+            <buffer name="fwdMov05-3" criticality=1 recipient="node4" fwdFrom="node2" fwdBuffer="fwdMov05-2" RLo="67" RHi="175" period="500" />
+            <buffer name="fwdMov10-3" criticality=1 recipient="node4" fwdFrom="node2" fwdBuffer="fwdMov10-2" RLo="79" RHi="187" period="500" />
+            <buffer name="fwdMov21-3" criticality=1 recipient="node4" fwdFrom="node2" fwdBuffer="fwdMov21-2" RLo="85" RHi="199" period="500" />
+            <buffer name="fwdMov32-3" criticality=1 recipient="node4" alias="mov" RLo="91" RHi="211" period="500" />
+          </airtight>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node4">
+      <body position="-0.866025403784438,-0.5,0" orientation="210,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <airtight slotTable="0,0,0,0,1,0">
+            <buffer name="fwdLed05-4" criticality=0 recipient="node5" fwdFrom="node3" fwdBuffer="fwdLed05-3" RLo="19" RHi="-1" period="100" />
+            <buffer name="fwdLed10-4" criticality=0 recipient="node5" fwdFrom="node3" fwdBuffer="fwdLed10-3" RLo="31" RHi="-1" period="100" />
+            <buffer name="fwdLed21-4" criticality=0 recipient="node5" fwdFrom="node3" fwdBuffer="fwdLed21-3" RLo="37" RHi="-1" period="100" />
+            <buffer name="fwdLed32-4" criticality=0 recipient="node5" fwdFrom="node3" fwdBuffer="fwdLed32-3" RLo="43" RHi="-1" period="100" />
+            <buffer name="fwdLed43-4" criticality=0 recipient="node5" alias="led" RLo="55" RHi="-1" period="100" />
+            <buffer name="fwdMov05-4" criticality=1 recipient="node5" fwdFrom="node3" fwdBuffer="fwdMov05-3" RLo="61" RHi="157" period="500" />
+            <buffer name="fwdMov10-4" criticality=1 recipient="node5" fwdFrom="node3" fwdBuffer="fwdMov10-3" RLo="67" RHi="175" period="500" />
+            <buffer name="fwdMov21-4" criticality=1 recipient="node5" fwdFrom="node3" fwdBuffer="fwdMov21-3" RLo="79" RHi="187" period="500" />
+            <buffer name="fwdMov32-4" criticality=1 recipient="node5" fwdFrom="node3" fwdBuffer="fwdMov32-3" RLo="85" RHi="199" period="500" />
+            <buffer name="fwdMov43-4" criticality=1 recipient="node5" alias="mov" RLo="91" RHi="211" period="500" />
+          </airtight>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node5">
+      <body position="-0.866025403784439,0.5,0" orientation="150,0,0"/>
+      <controller config="circle_controller">
+        <params>
+          <airtight slotTable="0,0,0,0,0,1">
+            <buffer name="fwdLed10-5" criticality=0 recipient="node0" fwdFrom="node4" fwdBuffer="fwdLed10-4" RLo="19" RHi="-1" period="100" />
+            <buffer name="fwdLed21-5" criticality=0 recipient="node0" fwdFrom="node4" fwdBuffer="fwdLed21-4" RLo="31" RHi="-1" period="100" />
+            <buffer name="fwdLed32-5" criticality=0 recipient="node0" fwdFrom="node4" fwdBuffer="fwdLed32-4" RLo="37" RHi="-1" period="100" />
+            <buffer name="fwdLed43-5" criticality=0 recipient="node0" fwdFrom="node4" fwdBuffer="fwdLed43-4" RLo="43" RHi="-1" period="100" />
+            <buffer name="fwdLed54-5" criticality=0 recipient="node0" alias="led" RLo="55" RHi="-1" period="100" />
+            <buffer name="fwdMov10-5" criticality=1 recipient="node0" fwdFrom="node4" fwdBuffer="fwdMov10-4" RLo="61" RHi="157" period="500" />
+            <buffer name="fwdMov21-5" criticality=1 recipient="node0" fwdFrom="node4" fwdBuffer="fwdMov21-4" RLo="67" RHi="175" period="500" />
+            <buffer name="fwdMov32-5" criticality=1 recipient="node0" fwdFrom="node4" fwdBuffer="fwdMov32-4" RLo="79" RHi="187" period="500" />
+            <buffer name="fwdMov43-5" criticality=1 recipient="node0" fwdFrom="node4" fwdBuffer="fwdMov43-4" RLo="85" RHi="199" period="500" />
+            <buffer name="fwdMov54-5" criticality=1 recipient="node0" alias="mov" RLo="91" RHi="211" period="500" />
+          </airtight>
+        </params>
+      </controller>
+    </pipuck>
+
+  </arena>
+
+  <!-- ******************* -->
+  <!-- * Physics engines * -->
+  <!-- ******************* -->
+  <physics_engines>
+    <dynamics2d id="dyn2d" />
+  </physics_engines>
+
+  <!-- ********* -->
+  <!-- * Media * -->
+  <!-- ********* -->
+  <media>
+    <slot_radio id="a1" />
+  </media>
+
+  <!-- ****************** -->
+  <!-- * Visualization * -->
+  <!-- ****************** -->
+  <visualization>
+    <qt-opengl show_boundary="false">
+      <user_functions library="build/loop_functions/libcircle_opengl_functions"
+                      label="circle_opengl_functions" />
+      <camera>
+        <placements>
+          <placement index="0" position="0,0,50" look_at="0,0,0" up="1,0,0" lens_focal_length="65" />
+        </placements>
+      </camera>
+    </qt-opengl>
+  </visualization>
+
+</argos-configuration>
+
