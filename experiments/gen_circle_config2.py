@@ -173,12 +173,27 @@ for i in range(NODES):
         print('            <buffer name="fwdMov%d%d-%d" criticality=%d recipient="node%d" alias="mov" RLo="%d" RHi="%d" period="%d" />' % (i, (i-1) % NODES, i, {"LO":0, "HI":1}[flow["criticality"]], (i+1) % NODES, flow["RLo"], flow["RHi"], MOV_PERIOD))
 
         print('          </airtight>')
+ #   elif implementation == "naive_p2p":
+ #       print('          <naive_p2p maxBackoffExp="2" maxRetries="5">')
+ #       for j in range(NODES):
+ #           if j != i:
+ #               print('            <recipient>node%d</recipient>' % j)
+ #       print('          </naive_p2p>')
+
     elif implementation == "naive_p2p":
         print('          <naive_p2p maxBackoffExp="2" maxRetries="5">')
+        print('            <buffer name="led">')
         for j in range(NODES):
             if j != i:
-                print('            <recipient>node%d</recipient>' % j)
+                print('                <recipient>node%d</recipient>' % j)
+        print('            </buffer>')
+        print('            <buffer name="mov">')
+        for j in range(NODES):
+            if j != i:
+                print('                <recipient>node%d</recipient>' % j)
+        print('            </buffer>')
         print('          </naive_p2p>')
+
 
     elif implementation == "naive_broadcast":
         print('          <naive_broadcast numRepeats="13" />')

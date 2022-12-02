@@ -19,7 +19,7 @@ namespace argos {
     private:
         SlotRadioMedium* medium;
         std::queue<RadioFrame> queuedFrames;
-        std::vector<std::string> recipients;
+        std::map<std::string, std::vector<std::string>> recipients;
 
         bool expectAck = false;
         UInt32 backoffRemaining = 0;

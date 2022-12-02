@@ -55,11 +55,20 @@
       <controller config="circle_controller">
         <params>
           <naive_p2p maxBackoffExp="2" maxRetries="5">
-            <recipient>node1</recipient>
-            <recipient>node2</recipient>
-            <recipient>node3</recipient>
-            <recipient>node4</recipient>
-            <recipient>node5</recipient>
+            <buffer name="led">
+                <recipient>node1</recipient>
+                <recipient>node2</recipient>
+                <recipient>node3</recipient>
+                <recipient>node4</recipient>
+                <recipient>node5</recipient>
+            </buffer>
+            <buffer name="mov">
+                <recipient>node1</recipient>
+                <recipient>node2</recipient>
+                <recipient>node3</recipient>
+                <recipient>node4</recipient>
+                <recipient>node5</recipient>
+            </buffer>
           </naive_p2p>
         </params>
       </controller>
@@ -69,11 +78,20 @@
       <controller config="circle_controller">
         <params>
           <naive_p2p maxBackoffExp="2" maxRetries="5">
-            <recipient>node0</recipient>
-            <recipient>node2</recipient>
-            <recipient>node3</recipient>
-            <recipient>node4</recipient>
-            <recipient>node5</recipient>
+            <buffer name="led">
+                <recipient>node0</recipient>
+                <recipient>node2</recipient>
+                <recipient>node3</recipient>
+                <recipient>node4</recipient>
+                <recipient>node5</recipient>
+            </buffer>
+            <buffer name="mov">
+                <recipient>node0</recipient>
+                <recipient>node2</recipient>
+                <recipient>node3</recipient>
+                <recipient>node4</recipient>
+                <recipient>node5</recipient>
+            </buffer>
           </naive_p2p>
         </params>
       </controller>
@@ -83,11 +101,20 @@
       <controller config="circle_controller">
         <params>
           <naive_p2p maxBackoffExp="2" maxRetries="5">
-            <recipient>node0</recipient>
-            <recipient>node1</recipient>
-            <recipient>node3</recipient>
-            <recipient>node4</recipient>
-            <recipient>node5</recipient>
+            <buffer name="led">
+                <recipient>node0</recipient>
+                <recipient>node1</recipient>
+                <recipient>node3</recipient>
+                <recipient>node4</recipient>
+                <recipient>node5</recipient>
+            </buffer>
+            <buffer name="mov">
+                <recipient>node0</recipient>
+                <recipient>node1</recipient>
+                <recipient>node3</recipient>
+                <recipient>node4</recipient>
+                <recipient>node5</recipient>
+            </buffer>
           </naive_p2p>
         </params>
       </controller>
@@ -97,11 +124,20 @@
       <controller config="circle_controller">
         <params>
           <naive_p2p maxBackoffExp="2" maxRetries="5">
-            <recipient>node0</recipient>
-            <recipient>node1</recipient>
-            <recipient>node2</recipient>
-            <recipient>node4</recipient>
-            <recipient>node5</recipient>
+            <buffer name="led">
+                <recipient>node0</recipient>
+                <recipient>node1</recipient>
+                <recipient>node2</recipient>
+                <recipient>node4</recipient>
+                <recipient>node5</recipient>
+            </buffer>
+            <buffer name="mov">
+                <recipient>node0</recipient>
+                <recipient>node1</recipient>
+                <recipient>node2</recipient>
+                <recipient>node4</recipient>
+                <recipient>node5</recipient>
+            </buffer>
           </naive_p2p>
         </params>
       </controller>
@@ -111,11 +147,20 @@
       <controller config="circle_controller">
         <params>
           <naive_p2p maxBackoffExp="2" maxRetries="5">
-            <recipient>node0</recipient>
-            <recipient>node1</recipient>
-            <recipient>node2</recipient>
-            <recipient>node3</recipient>
-            <recipient>node5</recipient>
+            <buffer name="led">
+                <recipient>node0</recipient>
+                <recipient>node1</recipient>
+                <recipient>node2</recipient>
+                <recipient>node3</recipient>
+                <recipient>node5</recipient>
+            </buffer>
+            <buffer name="mov">
+                <recipient>node0</recipient>
+                <recipient>node1</recipient>
+                <recipient>node2</recipient>
+                <recipient>node3</recipient>
+                <recipient>node5</recipient>
+            </buffer>
           </naive_p2p>
         </params>
       </controller>
@@ -125,11 +170,20 @@
       <controller config="circle_controller">
         <params>
           <naive_p2p maxBackoffExp="2" maxRetries="5">
-            <recipient>node0</recipient>
-            <recipient>node1</recipient>
-            <recipient>node2</recipient>
-            <recipient>node3</recipient>
-            <recipient>node4</recipient>
+            <buffer name="led">
+                <recipient>node0</recipient>
+                <recipient>node1</recipient>
+                <recipient>node2</recipient>
+                <recipient>node3</recipient>
+                <recipient>node4</recipient>
+            </buffer>
+            <buffer name="mov">
+                <recipient>node0</recipient>
+                <recipient>node1</recipient>
+                <recipient>node2</recipient>
+                <recipient>node3</recipient>
+                <recipient>node4</recipient>
+            </buffer>
           </naive_p2p>
         </params>
       </controller>

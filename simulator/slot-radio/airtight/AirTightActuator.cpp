@@ -9,6 +9,8 @@ namespace argos {
         std::string mediumName;
         GetNodeAttribute(t_tree, "medium", mediumName);
         medium = &CSimulator::GetInstance().GetMedium<SlotRadioMedium>(mediumName);
+
+        //FaultLoadDYNLUT(0, 1000);
     }
 
     void AirTightActuator::Update() {
@@ -170,20 +172,24 @@ namespace argos {
         }
     }
 
-    UInt32 AirTightActuator::FaultLoad(bool critLevel, UInt32 slots) {
+    UInt32 AirTightActuator::FaultLoad(bool critLevel, UInt32 slots, UInt32 hint) {
         /* TODO: These need to match what the configuration was generated with. Probably better to just make all the
          *       analysis happen dynamically at load time. We're likely to need dynamic re-analysis later anyway? */
         double pdr, targetConfidence;
         if (critLevel == 1) {
-            pdr = medium->PDR(3.0);
+            auto distance = 3.0;
+            pdr = ((distance < 1.5) ? 0.99 : 0.99 / (1.0 + pow((distance-1.5)/3.0, 2.0)));
+            //pdr = medium->PDR(3.0);
             targetConfidence = 0.99999;
         }
         else {
-            pdr = medium->PDR(2.0);
+            auto distance = 2.0;
+            pdr = ((distance < 1.5) ? 0.99 : 0.99 / (1.0 + pow((distance-1.5)/3.0, 2.0)));
+            //pdr = medium->PDR(2.0);
             targetConfidence = 0.999;
         }
 
-        UInt32 m = 0;
+        UInt32 m = hint;
         double achievedConfidence = 0;
         do {
             ++m;

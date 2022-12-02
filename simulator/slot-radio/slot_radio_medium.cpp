@@ -5,6 +5,7 @@ namespace argos{
     void SlotRadioMedium::Init(TConfigurationNode& t_tree) {
         CMedium::Init(t_tree);
         rng = CRandom::CreateRNG("argos");
+        pdrModifier = std::stod(t_tree.GetAttributeOrDefault("pdrModifier", "1.0"));
     }
 
     void SlotRadioMedium::Update() {
@@ -44,7 +45,7 @@ namespace argos{
         return returnFrame;
     }
 
-    const SlotRadioMedium::InFlightFrame* SlotRadioMedium::ReceiveFrameNoCollisions(const SlotRadioSensor *sensor) {
+    /*const SlotRadioMedium::InFlightFrame* SlotRadioMedium::ReceiveFrameNoCollisions(const SlotRadioSensor *sensor) {
         std::set<std::pair<Real, const InFlightFrame*>> receivedFrames;
         auto& sensorPosition = sensor->GetPosition();
 
@@ -63,7 +64,7 @@ namespace argos{
         else {
             return receivedFrames.begin()->second;
         }
-    }
+    }*/
 
     void SlotRadioMedium::PushAck(const InFlightFrame* frame, const SlotRadioSensor* sensor) {
         acks.emplace_back(InFlightAck {frame->origin, sensor});

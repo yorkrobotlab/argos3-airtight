@@ -56,13 +56,19 @@ namespace argos {
             else {
                 LOG << "[" << robot->GetId() << "] Extending FLLUT " << critLevel << "to size " << slots << "\n";
                 for(UInt32 i = faultLoadLUTS[critLevel].size(); i <= slots; i++) {
-                    faultLoadLUTS[critLevel].emplace_back(FaultLoad(critLevel, slots));
+                    if (i != 0) {
+                        faultLoadLUTS[critLevel].emplace_back(
+                                FaultLoad(critLevel, slots, faultLoadLUTS[critLevel].back()));
+                    }
+                    else {
+                        faultLoadLUTS[critLevel].emplace_back(FaultLoad(critLevel, slots));
+                    }
                 }
                 return faultLoadLUTS[critLevel][slots];
             }
         }
 
-        UInt32 FaultLoad(bool critLevel, UInt32 slots);
+        UInt32 FaultLoad(bool critLevel, UInt32 slots, UInt32 hint=0);
     };
 };
 

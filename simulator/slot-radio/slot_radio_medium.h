@@ -29,6 +29,7 @@ namespace argos {
         std::vector<InFlightAck> acks;
 
         CRandom::CRNG* rng;
+        double pdrModifier = 1.0;
 
     public:
         SlotRadioMedium() : txFrames({}), rxFrames({}), rng(nullptr) {};
@@ -39,14 +40,16 @@ namespace argos {
 
         void PushFrame(const RadioFrame& frame, const SlotRadioActuator* origin);
         const InFlightFrame* ReceiveFrame(const SlotRadioSensor *sensor);
-        const InFlightFrame* ReceiveFrameNoCollisions(const SlotRadioSensor *sensor);
+        //const InFlightFrame* ReceiveFrameNoCollisions(const SlotRadioSensor *sensor);
         bool CarrierSenseBusy(const SlotRadioActuator* actuator);
 
         void PushAck(const InFlightFrame* frame, const SlotRadioSensor* sensor);
         bool ReceiveAck(const SlotRadioActuator* actuator, bool checkCollisions = true);
 
-        inline static Real PDR(Real distance) {
-            return (distance < 1.5) ? 0.99 : 0.99 / (1.0 + pow((distance-1.5)/3.0, 2.0));
+        inline Real PDR(Real distance) const {
+             //return 1.0;
+            //return 0.99 / (1.0 + pow(distance, 2.0));
+            return pdrModifier * ((distance < 1.5) ? 0.99 : 0.99 / (1.0 + pow((distance-1.5)/3.0, 2.0)));
         }
     };
 

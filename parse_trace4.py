@@ -125,7 +125,8 @@ for group in sys.argv[1:]:
 
 #plt.style.use("ggplot")
 #plt.rcParams['figure.figsize'] = [8, 2]
-plt.rcParams['figure.figsize'] = [12, 5]
+plt.rcParams['figure.figsize'] = [8, 4]
+plt.rcParams['text.usetex'] = True
 
 #fig, ax = plt.subplots()
 #ax.set_ylim(10**-6, 10)
@@ -170,6 +171,9 @@ plt.rcParams['figure.figsize'] = [12, 5]
 
 
 
+
+
+
 fig2, ax2 = plt.subplots(2, len(plot_traces)//2, constrained_layout=True)
 
 #fig2.suptitle("Number of nodes showing incorrect colour")
@@ -179,6 +183,7 @@ for (i, trace) in enumerate(plot_traces):
 
     ax2[i//2][i%2].set_title(["AirTight (Optimal Routing)", "AirTight (Randomised Routing)", "Broadcast", "Point-to-Point"][i], fontdict={"fontsize":14})
     ax2[i//2][i%2].set_ylim(0,5)
+    #ax2[i//2][i%2].set_xlim(-10,200)
 
     ax2[i//2][i%2].tick_params(axis='x', labelsize=8)
     ax2[i//2][i%2].tick_params(axis='y', labelsize=10)
@@ -204,14 +209,13 @@ for (i, trace) in enumerate(plot_traces):
     ax2[i//2][i%2].set_xticklabels(["0s", "30s", "60s", "90s", "120s", "150s", "180s", "210s","240s"], fontdict={"fontsize":8})
 
 #fig2.savefig("num_colours.pgf")
+#fig2.suptitle("LED Error Occurrences over Time by Protocol")
+fig2.align_labels()
 fig2.savefig("num_colours.pdf")
 
 
 
-
-
-
-
+# END OLD
 
 
 
@@ -257,11 +261,16 @@ fig2.savefig("num_colours.pdf")
 #ax3.boxplot(plotdata, positions=positions, whis=(0,100))
 #fig3.savefig("boxplot.png", dpi=300)
 
-plt.rcParams['figure.figsize'] = [12, 6]
+
+
+
+
+plt.rcParams['figure.figsize'] = [8, 5]
 
 
 num_buckets = len(plot_traces[0]["devbuckets"])
-fig4, ax = plt.subplots(2, int(ceil(num_buckets / 2.0)), constrained_layout=True)
+lines = 2
+fig4, ax = plt.subplots(lines, int(ceil(num_buckets / lines)), constrained_layout=True, sharey="row")
 
 #fig4.suptitle("BBB")
 
@@ -269,28 +278,37 @@ for i in range(num_buckets):
 
     # import pdb; pdb.set_trace()
 
-    ax[i // int(ceil(num_buckets / 2.0))][i % int(ceil(num_buckets / 2.0))].set_title("$n = "+str((bucket_size//100)*(i+1))+"$s", fontdict={"fontsize":14})
+    ax[i // int(ceil(num_buckets / lines))][i % int(ceil(num_buckets / lines))].set_title("$n = "+str((bucket_size//100)*(i+1))+"$s", fontdict={"fontsize":14})
 #    ax[i // int(ceil(num_buckets / 2.0))][i % int(ceil(num_buckets / 2.0))].set_ylim(-2, 150)
    # ax[i].set_yscale("symlog", linthresh=1, linscale=(1, 0.5))
    # ax[i].tick_params(axis='x', labelrotation=90, labelsize=6)
-    ax[i // int(ceil(num_buckets / 2.0))][i % int(ceil(num_buckets / 2.0))].tick_params(axis='x', labelsize=12)
-    ax[i // int(ceil(num_buckets / 2.0))][i % int(ceil(num_buckets / 2.0))].tick_params(axis='y', labelsize=12)
+    #ax[i // int(ceil(num_buckets / lines))][i % int(ceil(num_buckets / lines))].tick_params(axis='x', labelsize=12)
+    #ax[i // int(ceil(num_buckets / lines))][i % int(ceil(num_buckets / lines))].tick_params(axis='y', labelsize=12)
 #    ax[i].major_ticklabels.set_ha("left")
 
-    if (i % int(ceil(num_buckets / 2.0))) == 0:
-        ax[i // int(ceil(num_buckets / 2.0))][i % int(ceil(num_buckets / 2.0))].set_ylabel("$E_{POS}$ (cm)", fontdict={"fontsize":12})
-    else:
-        ax[i // int(ceil(num_buckets / 2.0))][i % int(ceil(num_buckets / 2.0))].set_yticklabels([])
 
-    if i // int(ceil(num_buckets / 2.0)) == 0:
-        ax[i // int(ceil(num_buckets / 2.0))][i % int(ceil(num_buckets / 2.0))].set_ylim(-0.5, 60)
-    else:
-        ax[i // int(ceil(num_buckets / 2.0))][i % int(ceil(num_buckets / 2.0))].set_ylim(-2.5, 300)
+    if (i % int(ceil(num_buckets / lines))) == 0:
+        ax[i // int(ceil(num_buckets / lines))][i % int(ceil(num_buckets / lines))].set_ylabel("$E_{POS}$ (cm)", fontdict={"fontsize":12})
+  #  else:
+  #      ax[i // int(ceil(num_buckets / lines))][i % int(ceil(num_buckets / lines))].set_yticklabels([])
+
+  #  if i // int(ceil(num_buckets / lines)) == 0:
+  #      ax[i // int(ceil(num_buckets / lines))][i % int(ceil(num_buckets / lines))].set_ylim(-0.5, 60)
+  #  elif i // int(ceil(num_buckets / lines)) == 1:
+  #      ax[i // int(ceil(num_buckets / lines))][i % int(ceil(num_buckets / lines))].set_ylim(-1.25, 150)
+  #  else:
+  #      ax[i // int(ceil(num_buckets / lines))][i % int(ceil(num_buckets / lines))].set_ylim(-2.5, 300)
 
     data = [trace["devbuckets"][i] for trace in plot_traces]
-    ax[i // int(ceil(num_buckets / 2.0))][i % int(ceil(num_buckets / 2.0))].boxplot(data, whis=(0,100), labels=["A/O", "A/R","B","P"], flierprops={"marker":"."})
+    ax[i // int(ceil(num_buckets / lines))][i % int(ceil(num_buckets / lines))].boxplot(data, whis=(0,100), labels=["A/O", "A/R","B","P"], flierprops={"marker":"."})
+
+for i in range(num_buckets, lines*int(ceil(num_buckets / lines))):
+    print("YO")
+    ax[i // int(ceil(num_buckets / lines))][i % int(ceil(num_buckets / lines))].set_visible(False)
 
 #fig4.savefig("boxplot2.pgf")
+#fig4.suptitle("Accumulated Positional Error at Time $n$")
+fig4.align_labels()
 fig4.savefig("boxplot2.pdf")
 
 #import tikzplotlib

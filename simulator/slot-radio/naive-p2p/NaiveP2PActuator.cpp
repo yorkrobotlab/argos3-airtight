@@ -56,7 +56,7 @@ namespace argos {
 
     void NaiveP2PActuator::QueueFrame(const std::string &buffer, const RadioMessage &message) {
         const auto clock = CSimulator::GetInstance().GetSpace().GetSimulationClock();
-        for(const auto& node : recipients) {
+        for(const auto& node : recipients[buffer]) {
             queuedFrames.emplace(RadioFrame {robot->GetId(), node, "", message, clock});
         }
     }
@@ -79,11 +79,19 @@ namespace argos {
 
         TConfigurationNodeIterator it;
         for(it = it.begin(&config); it != it.end(); ++it) {
-            if (it->Value() != "recipient") {
-                THROW_ARGOSEXCEPTION("Unknown configuration element: " + it->Value());
+            if (it->Value() != "buffer") {
+                THROW_ARGOSEXCEPTION("Unexpected config element "+it->Value());
             }
+            recipients[it->GetAttribute("name")] = {};
 
-            recipients.emplace_back(it->GetText());
+            auto child  = it->FirstChild();
+            while (child != nullptr) {
+                if (child->Value() != "recipient") {
+                    THROW_ARGOSEXCEPTION("Unexpected config element " + it->Value());
+                }
+                recipients[it->GetAttribute("name")].emplace_back(child->FirstChild()->Value());
+                child = it->IterateChildren(child);
+            }
         }
     }
 

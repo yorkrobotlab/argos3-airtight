@@ -6,7 +6,7 @@ import time
 
 
 def run(experiment):
-    output_path = os.path.join("traces", os.path.basename(experiment))
+    output_path = os.path.join("traces_f", os.path.basename(experiment))
     sem.acquire()
     start = time.time()
     print("Running: "+experiment+ " "+output_path)

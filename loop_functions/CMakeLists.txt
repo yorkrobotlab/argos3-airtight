@@ -14,3 +14,11 @@ add_library(circle_logging_loop_functions SHARED
 target_link_libraries(circle_logging_loop_functions
         argos3core_simulator
         argos3plugin_simulator_pipuck)
+
+add_library(flocking_loop_functions SHARED
+        flocking_loop_functions.h
+        flocking_loop_functions.cpp)
+
+target_link_libraries(flocking_loop_functions
+        argos3core_simulator
+        argos3plugin_simulator_pipuck)

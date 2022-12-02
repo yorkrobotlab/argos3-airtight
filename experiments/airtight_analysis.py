@@ -9,7 +9,6 @@ def runAnalysis(flows, nodes):
         else:
             return 0.99 / (1 + ((1/3) * (d - 1.5))**2)
 
-
     def S(x):
         return 1 + x*nodes
 

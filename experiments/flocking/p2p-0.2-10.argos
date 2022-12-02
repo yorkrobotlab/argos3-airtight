@@ -1,0 +1,323 @@
+<?xml version="1.0" ?>
+<argos-configuration>
+
+  <!-- ************************* -->
+  <!-- * General configuration * -->
+  <!-- ************************* -->
+  <framework>
+    <system threads="0" />
+    <experiment length="300" ticks_per_second="100" random_seed="10" />
+  </framework>
+
+  <!-- *************** -->
+  <!-- * Controllers * -->
+  <!-- *************** -->
+  <controllers>
+    <flocking_controller library="build/controllers/flocking/libflocking_controller"
+                       id="flocking_controller">
+      <actuators>
+        <pipuck_differential_drive implementation="default" />
+        <slot_radio implementation="naive_p2p" medium="a1" />
+      </actuators>
+      <sensors>
+        <slot_radio implementation="naive_p2p" medium="a1" show_rays="true"/>
+        <pipuck_rangefinders implementation="default" show_rays="true" />
+        <positioning implementation="default" />
+      </sensors>
+    </flocking_controller>
+  </controllers>
+
+  <!-- ****************** -->
+  <!-- * Loop functions * -->
+  <!-- ****************** -->
+  <loop_functions library="build/loop_functions/libflocking_loop_functions"
+                  label="flocking_loop_functions" />
+
+  <!-- *********************** -->
+  <!-- * Arena configuration * -->
+  <!-- *********************** -->
+  <arena size="10, 10, 1">
+
+    <box id="wall_north" size="10,0.1,0.25" movable="false">
+      <body position="0,5,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_south" size="10,0.1,0.25" movable="false">
+      <body position="0,-5,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_east" size="0.1,10,0.25" movable="false">
+      <body position="5,0,0" orientation="0,0,0" />
+    </box>
+    <box id="wall_west" size="0.1,10,0.25" movable="false">
+      <body position="-5,0,0" orientation="0,0,0" />
+    </box>
+
+    <pipuck id="node0">
+      <body position="0.285610378759654,-0.284443781299542,0" orientation="295,0,0"/>
+      <controller config="flocking_controller">
+        <params controlPeriod="500" >
+          <naive_p2p maxBackoffExp="2" maxRetries="5">
+            <buffer name="pos">
+              <recipient>node1</recipient>
+              <recipient>node2</recipient>
+              <recipient>node3</recipient>
+              <recipient>node4</recipient>
+              <recipient>node5</recipient>
+              <recipient>node6</recipient>
+              <recipient>node7</recipient>
+              <recipient>node8</recipient>
+              <recipient>node9</recipient>
+            </buffer>
+            <buffer name="data">
+              <recipient>node0</recipient>
+            </buffer>
+          </naive_p2p>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node1">
+      <body position="-1.94067021590179,-0.149677967628203,0" orientation="251,0,0"/>
+      <controller config="flocking_controller">
+        <params controlPeriod="500" >
+          <naive_p2p maxBackoffExp="2" maxRetries="5">
+            <buffer name="pos">
+              <recipient>node2</recipient>
+              <recipient>node3</recipient>
+              <recipient>node4</recipient>
+              <recipient>node5</recipient>
+              <recipient>node6</recipient>
+              <recipient>node7</recipient>
+              <recipient>node8</recipient>
+              <recipient>node9</recipient>
+              <recipient>node0</recipient>
+            </buffer>
+            <buffer name="data">
+              <recipient>node0</recipient>
+            </buffer>
+          </naive_p2p>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node2">
+      <body position="1.29435549013378,0.613890135604703,0" orientation="82,0,0"/>
+      <controller config="flocking_controller">
+        <params controlPeriod="500" >
+          <naive_p2p maxBackoffExp="2" maxRetries="5">
+            <buffer name="pos">
+              <recipient>node3</recipient>
+              <recipient>node4</recipient>
+              <recipient>node5</recipient>
+              <recipient>node6</recipient>
+              <recipient>node7</recipient>
+              <recipient>node8</recipient>
+              <recipient>node9</recipient>
+              <recipient>node0</recipient>
+              <recipient>node1</recipient>
+            </buffer>
+            <buffer name="data">
+              <recipient>node0</recipient>
+            </buffer>
+          </naive_p2p>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node3">
+      <body position="-1.86238570449742,-0.0396576724120137,0" orientation="38,0,0"/>
+      <controller config="flocking_controller">
+        <params controlPeriod="500" >
+          <naive_p2p maxBackoffExp="2" maxRetries="5">
+            <buffer name="pos">
+              <recipient>node4</recipient>
+              <recipient>node5</recipient>
+              <recipient>node6</recipient>
+              <recipient>node7</recipient>
+              <recipient>node8</recipient>
+              <recipient>node9</recipient>
+              <recipient>node0</recipient>
+              <recipient>node1</recipient>
+              <recipient>node2</recipient>
+            </buffer>
+            <buffer name="data">
+              <recipient>node0</recipient>
+            </buffer>
+          </naive_p2p>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node4">
+      <body position="-1.0000132932544,1.81126763658365,0" orientation="184,0,0"/>
+      <controller config="flocking_controller">
+        <params controlPeriod="500" >
+          <naive_p2p maxBackoffExp="2" maxRetries="5">
+            <buffer name="pos">
+              <recipient>node5</recipient>
+              <recipient>node6</recipient>
+              <recipient>node7</recipient>
+              <recipient>node8</recipient>
+              <recipient>node9</recipient>
+              <recipient>node0</recipient>
+              <recipient>node1</recipient>
+              <recipient>node2</recipient>
+              <recipient>node3</recipient>
+            </buffer>
+            <buffer name="data">
+              <recipient>node0</recipient>
+            </buffer>
+          </naive_p2p>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node5">
+      <body position="-1.82177447019827,1.44064414914516,0" orientation="308,0,0"/>
+      <controller config="flocking_controller">
+        <params controlPeriod="500" >
+          <naive_p2p maxBackoffExp="2" maxRetries="5">
+            <buffer name="pos">
+              <recipient>node6</recipient>
+              <recipient>node7</recipient>
+              <recipient>node8</recipient>
+              <recipient>node9</recipient>
+              <recipient>node0</recipient>
+              <recipient>node1</recipient>
+              <recipient>node2</recipient>
+              <recipient>node3</recipient>
+              <recipient>node4</recipient>
+            </buffer>
+            <buffer name="data">
+              <recipient>node0</recipient>
+            </buffer>
+          </naive_p2p>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node6">
+      <body position="-0.579673249077619,-0.314944020401889,0" orientation="345,0,0"/>
+      <controller config="flocking_controller">
+        <params controlPeriod="500" >
+          <naive_p2p maxBackoffExp="2" maxRetries="5">
+            <buffer name="pos">
+              <recipient>node7</recipient>
+              <recipient>node8</recipient>
+              <recipient>node9</recipient>
+              <recipient>node0</recipient>
+              <recipient>node1</recipient>
+              <recipient>node2</recipient>
+              <recipient>node3</recipient>
+              <recipient>node4</recipient>
+              <recipient>node5</recipient>
+            </buffer>
+            <buffer name="data">
+              <recipient>node0</recipient>
+            </buffer>
+          </naive_p2p>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node7">
+      <body position="-0.950715558027293,-1.30131764156039,0" orientation="155,0,0"/>
+      <controller config="flocking_controller">
+        <params controlPeriod="500" >
+          <naive_p2p maxBackoffExp="2" maxRetries="5">
+            <buffer name="pos">
+              <recipient>node8</recipient>
+              <recipient>node9</recipient>
+              <recipient>node0</recipient>
+              <recipient>node1</recipient>
+              <recipient>node2</recipient>
+              <recipient>node3</recipient>
+              <recipient>node4</recipient>
+              <recipient>node5</recipient>
+              <recipient>node6</recipient>
+            </buffer>
+            <buffer name="data">
+              <recipient>node0</recipient>
+            </buffer>
+          </naive_p2p>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node8">
+      <body position="0.647385280209404,-1.46808742115115,0" orientation="122,0,0"/>
+      <controller config="flocking_controller">
+        <params controlPeriod="500" >
+          <naive_p2p maxBackoffExp="2" maxRetries="5">
+            <buffer name="pos">
+              <recipient>node9</recipient>
+              <recipient>node0</recipient>
+              <recipient>node1</recipient>
+              <recipient>node2</recipient>
+              <recipient>node3</recipient>
+              <recipient>node4</recipient>
+              <recipient>node5</recipient>
+              <recipient>node6</recipient>
+              <recipient>node7</recipient>
+            </buffer>
+            <buffer name="data">
+              <recipient>node0</recipient>
+            </buffer>
+          </naive_p2p>
+        </params>
+      </controller>
+    </pipuck>
+    <pipuck id="node9">
+      <body position="1.87755264161968,0.453307282186836,0" orientation="22,0,0"/>
+      <controller config="flocking_controller">
+        <params controlPeriod="500" >
+          <naive_p2p maxBackoffExp="2" maxRetries="5">
+            <buffer name="pos">
+              <recipient>node0</recipient>
+              <recipient>node1</recipient>
+              <recipient>node2</recipient>
+              <recipient>node3</recipient>
+              <recipient>node4</recipient>
+              <recipient>node5</recipient>
+              <recipient>node6</recipient>
+              <recipient>node7</recipient>
+              <recipient>node8</recipient>
+            </buffer>
+            <buffer name="data">
+              <recipient>node0</recipient>
+            </buffer>
+          </naive_p2p>
+        </params>
+      </controller>
+    </pipuck>
+
+
+   <!-- <distribute>
+      <position method="uniform" min="-4,-4,0" max="4,4,0" />
+      <orientation method="gaussian" mean="0,0,0" std_dev="360,0,0" />
+      <entity quantity="5" max_trials="100">
+          <box id="obstacle" size="1,1,0.25" movable="false" />
+      </entity>
+    </distribute>-->
+  </arena>
+
+  <!-- ******************* -->
+  <!-- * Physics engines * -->
+  <!-- ******************* -->
+  <physics_engines>
+    <dynamics2d id="dyn2d" iterations="5" />
+  </physics_engines>
+
+  <!-- ********* -->
+  <!-- * Media * -->
+  <!-- ********* -->
+  <media>
+    <slot_radio id="a1" pdrModifier="0.200000" />
+  </media>
+
+  <!-- ****************** -->
+  <!-- * Visualization * -->
+  <!-- ****************** -->
+  <visualization>
+    <qt-opengl show_boundary="false">
+      <camera>
+        <placements>
+          <placement index="0" position="0,0,30" look_at="0,0,0" up="1,0,0" lens_focal_length="65" />
+        </placements>
+      </camera>
+    </qt-opengl>
+  </visualization>
+
+</argos-configuration>
+
