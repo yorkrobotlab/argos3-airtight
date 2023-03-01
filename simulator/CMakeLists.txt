@@ -15,6 +15,10 @@ add_library(argos3plugin_simulator_genericrobot-slotradio SHARED
             slot-radio/naive-p2p/NaiveP2PFrame.h
             slot-radio/naive-p2p/NaiveP2PActuator.h
             slot-radio/naive-p2p/NaiveP2PSensor.h
+            slot-radio/protocol1/Protocol1Frame.h
+            slot-radio/protocol1/Protocol1Buffer.h
+            slot-radio/protocol1/Protocol1Actuator.h
+            slot-radio/protocol1/Protocol1Sensor.h
             slot-radio/generic/slot_radio_medium.cpp
             slot-radio/airtight/AirTightAnalysis.cpp
             slot-radio/airtight/AirTightActuator.cpp
@@ -22,7 +26,9 @@ add_library(argos3plugin_simulator_genericrobot-slotradio SHARED
             slot-radio/naive-broadcast/NaiveBroadcastActuator.cpp
             slot-radio/naive-broadcast/NaiveBroadcastSensor.cpp
             slot-radio/naive-p2p/NaiveP2PActuator.cpp
-            slot-radio/naive-p2p/NaiveP2PSensor.cpp)
+            slot-radio/naive-p2p/NaiveP2PSensor.cpp
+            slot-radio/protocol1/Protocol1Actuator.cpp
+            slot-radio/protocol1/Protocol1Sensor.cpp)
 
 target_link_libraries(argos3plugin_simulator_genericrobot-slotradio
                       argos3core_simulator 
