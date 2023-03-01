@@ -1,9 +1,12 @@
-#include "AirTightActuator.h"
 #include <argos3/core/simulator/simulator.h>
+#include "AirTightActuator.h"
+#include "AirTightAnalysis.h"
 
 namespace argos {
     void AirTightActuator::Update() {
         const auto& clock = CSimulator::GetInstance().GetSpace().GetSimulationClock();
+        // Ensure txPort is null unless we explicitly set it
+        txPort = nullptr;
 
         if (GotAck() && txBuffer != nullptr) {
             txBuffer->buffer.pop_front();
@@ -13,7 +16,7 @@ namespace argos {
             // Handle failed TX
             ++failedTransmissions;
 
-            if (!highCriticalityMode && (failedTransmissions > FaultLoadDYNLUT(false, busyPeriodDuration))) {
+            if (!highCriticalityMode && (failedTransmissions > FaultLoad(busyPeriodDuration, false))) {
                 LOG << "[" << robot->GetId() << "] High Criticality Mode\n";
                 highCriticalityMode = true;
 
@@ -25,7 +28,7 @@ namespace argos {
             }
 
             // Not an else if, because we might need both if we just switched above and F(Hi,X) == F(Lo,X)
-            if (highCriticalityMode && (failedTransmissions > FaultLoadDYNLUT(true, busyPeriodDuration))) {
+            if (highCriticalityMode && (failedTransmissions > FaultLoad(busyPeriodDuration, true))) {
                 LOG << "[" << robot->GetId() << "] High Criticality Fault Load Exceeded\n";
 
                 // In best efforts mode, drop failed transmissions if they have exceeded their response time. We don't
@@ -58,6 +61,7 @@ namespace argos {
                     LOG << "[" << robot->GetId() << "] Low Criticality Mode\n";
                     highCriticalityMode = false;
                 }
+                txPort = nullptr;
                 busyPeriodDuration = 0;
                 failedTransmissions = 0;
             }
@@ -73,14 +77,8 @@ namespace argos {
         const auto flowID = GetBufferID(bufferName);
         auto& buffer = buffers[flowID];
 
-        /*AirTightFrame frame = {robot->GetId(),
-                            buffer.recipient,
-                            buffer.name,
-                            message,
-                            std::max(buffer.nextFrameTime, clock)};*/
         if (!highCriticalityMode || buffer.highCriticality) {
             buffer.buffer.emplace_back(robot->GetId(), buffer.recipient, buffer.name, message, std::max(buffer.nextFrameTime, clock));
-            //buffer.buffer.emplace_back(frame);
             buffer.nextFrameTime = std::max(buffer.nextFrameTime, clock) + buffer.period;
         }
     }
@@ -91,6 +89,8 @@ namespace argos {
             buffer.buffer.clear();
         }
         txBuffer = nullptr;
+        busyPeriodDuration = 0;
+        failedTransmissions = 0;
     }
 
     void AirTightActuator::SetRobotConfiguration(TConfigurationNode &t_tree) {
@@ -108,7 +108,7 @@ namespace argos {
                     txSlots.emplace_back(1);
                     break;
                 case ' ':
-                    break;
+                    [[fallthrough]];
                 case ',':
                     break;
                 default: THROW_ARGOSEXCEPTION("Couldn't parse node slot table");
@@ -125,8 +125,6 @@ namespace argos {
             const auto& name = it->GetAttribute("name");
             const auto& alias = it->GetAttribute("alias");
             const auto& recipient = it->GetAttribute("recipient");
-            const auto& responseTimeLC = it->GetAttribute("RLo");
-            const auto& responseTimeHC = it->GetAttributeOrDefault("RHi", "-1");
             const auto& period = it->GetAttribute("period");
             bool criticality = stoi(it->GetAttributeOrDefault("criticality", "0"));
 
@@ -147,49 +145,22 @@ namespace argos {
                 bufferNameIDLookup[alias] = buffers.size();
             }
 
-            if (responseTimeLC.empty()) {
-                THROW_ARGOSEXCEPTION("Buffer must have a low criticality response time: "+ToString(*it));
-            }
-            UInt32 RLo = stoi(responseTimeLC);
-            UInt32 RHi = stoi(responseTimeHC);
-
             if (period.empty()) {
                 THROW_ARGOSEXCEPTION("Buffer must have a period"+ ToString(*it));
             }
             UInt32 periodT = stoi(period);
 
-            buffers.emplace_back(AirTightBuffer {name,recipient,{},criticality, {RLo, RHi}, periodT});
+            buffers.emplace_back(AirTightBuffer {name,recipient,{},criticality, {0u, 1u<<31}, periodT});
         }
+
+        ComputeResponseTimes(&buffers, txSlots);
+        //for(const auto& buffer : buffers) {
+        //    LOG << "BUFFER: RLo: " << buffer.responseTime[0] << " RHi: " << buffer.responseTime[1] << "\n";
+        //}
     }
 
-    UInt32 AirTightActuator::FaultLoad(bool critLevel, UInt32 slots, UInt32 hint) {
-        /* TODO: These need to match what the configuration was generated with. Probably better to just make all the
-         *       analysis happen dynamically at load time. We're likely to need dynamic re-analysis later anyway? */
-        double pdr, targetConfidence;
-        if (critLevel == 1) {
-            auto distance = 3.0;
-            pdr = ((distance < 1.5) ? 0.99 : 0.99 / (1.0 + pow((distance-1.5)/3.0, 2.0)));
-            //pdr = medium->PDR(3.0);
-            targetConfidence = 0.99999;
-        }
-        else {
-            auto distance = 2.0;
-            pdr = ((distance < 1.5) ? 0.99 : 0.99 / (1.0 + pow((distance-1.5)/3.0, 2.0)));
-            //pdr = medium->PDR(2.0);
-            targetConfidence = 0.999;
-        }
-
-        UInt32 m = hint;
-        double achievedConfidence = 0;
-        do {
-            ++m;
-            achievedConfidence = 0;
-            for(UInt32 k = 0; k < m; k++) {
-                achievedConfidence += binomial(slots, k) * pow(1-(pdr*pdr), k) * pow(pdr*pdr, slots-k);
-            }
-        } while (achievedConfidence < targetConfidence);
-
-        return --m;
+    UInt32 AirTightActuator::FaultLoad(UInt32 slots, bool highCriticality) {
+        return FaultModel(slots, highCriticality);
     }
 
     REGISTER_ACTUATOR(AirTightActuator,

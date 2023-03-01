@@ -6,8 +6,6 @@
 
 namespace argos {
     struct AirTightFrame : SlotRadioFrame {
-        //AirTightFrame() = default;
-
         AirTightFrame(const std::string& from,
                       const std::string& to,
                       std::string originBuffer,
