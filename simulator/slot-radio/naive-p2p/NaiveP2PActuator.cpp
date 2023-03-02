@@ -104,7 +104,9 @@ namespace argos {
                       "naive_p2p",
                       "Sven Signer",
                       "1.0",
-                      "Brief Description",
-                      "Long Description",
-                      "status")
+                      "Transmit frames to each receiving node in-turn",
+                      "Transmit each frame to each receiving node individually. Re-transmit frames until the receiver\n"
+                      "returns an acknowledgement frame, or a maximum transmission count is exceeded. Use a\n"
+                      "channel-clear assessment prior to transmission in an attempt to reduce collisions.",
+                      "unstable")
 }

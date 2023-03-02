@@ -36,7 +36,7 @@ namespace argos {
                     "naive_p2p",
                     "Sven Signer",
                     "1.0",
-                    "Brief Description",
-                    "Long Description",
-                    "status")
+                    "Receive naive_p2p frames",
+                    "Receive frames from a naive_p2p actuator",
+                    "unstable")
 }

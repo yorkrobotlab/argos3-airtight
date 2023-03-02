@@ -82,7 +82,7 @@ namespace argos {
                     "airtight",
                     "Sven Signer",
                     "1.0",
-                    "Brief Description",
-                    "Long Description",
-                    "status")
+                    "A (somewhat modified) version of the AirTight protocol",
+                    "Receive frames from AirTight actuators, forwarding multi-hop packets as configured.",
+                    "unstable")
 }

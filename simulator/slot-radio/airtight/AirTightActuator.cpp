@@ -197,8 +197,12 @@ namespace argos {
                       "airtight",
                       "Sven Signer",
                       "1.0",
-                      "Brief Description",
-                      "Long Description",
-                      "status")
+                      "A (somewhat modified) version of the AirTight protocol",
+                      "Transmit frames using a somewhat modified version of the AirTight protocol. Frame are\n"
+                      "transmitted according to a fixed-priority ordering. The number of failed transmission is\n"
+                      "tracked, and if the number of failures within a busy-period exceeds that of a provided fault\n"
+                      "model, the node switches to a high-criticality mode in which low-criticality frames are\n"
+                      "discarded.",
+                      "unstable")
 
 }

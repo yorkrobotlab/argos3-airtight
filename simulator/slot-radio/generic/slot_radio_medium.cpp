@@ -105,7 +105,9 @@ namespace argos{
                     "slot_radio",
                     "Sven Signer",
                     "1.0",
-                    "Breif Description",
-                    "Long Description",
-                    "status")
+                    "Medium for communication between slot_radio sensors/actuators",
+                    "Simulate low-bandwidth wireless protocols, where each simulation set allows for each actuator\n"
+                    "to send at most one frame, and each sensor to receive at most one frame. If multiple frames are\n"
+                    "frames within a single step they are assumed to interfere destructively",
+                    "unstable")
 }

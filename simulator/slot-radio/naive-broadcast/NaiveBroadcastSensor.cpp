@@ -33,7 +33,7 @@ namespace argos {
                     "naive_broadcast",
                     "Sven Signer",
                     "1.0",
-                    "Brief Description",
-                    "Long Description",
-                    "status")
+                    "Receive naive_broadcast frames",
+                    "Receive frames from naive_broadcast actuators",
+                    "unstable")
 }

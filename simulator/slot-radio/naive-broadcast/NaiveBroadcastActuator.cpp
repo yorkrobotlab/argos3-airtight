@@ -46,7 +46,8 @@ namespace argos {
                       "naive_broadcast",
                       "Sven Signer",
                       "1.0",
-                      "Brief Description",
-                      "Long Description",
-                      "status")
+                      "Broadcast a fixed-number of times",
+                      "Broadcast each frame a fixed number of times, using a channel-clear assessment prior to each\n"
+                      "transmission in an attempt to reduce collisions.",
+                      "unstable")
 }
