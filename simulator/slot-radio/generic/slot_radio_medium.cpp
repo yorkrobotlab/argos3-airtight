@@ -5,11 +5,17 @@
 namespace argos{
 
     void SlotRadioMedium::RegisterActuator(SlotRadioActuator *actuator) {
-        actuators.emplace(actuator);
+        auto [it, inserted] = actuators.emplace(actuator->robot->GetId(), actuator);
+        if (!inserted) {
+            THROW_ARGOSEXCEPTION("Nodes must not have multiple slot_radio actuators on the same medium");
+        }
     }
 
     void SlotRadioMedium::RegisterSensor(SlotRadioSensor *sensor) {
-        sensors.emplace(sensor);
+        auto [it, inserted] = sensors.emplace(sensor->robot->GetId(), sensor);
+        if (!inserted) {
+            THROW_ARGOSEXCEPTION("Nodes must not have multiple slot_radio sensors on the same medium")
+        }
     }
 
     void SlotRadioMedium::Init(TConfigurationNode& t_tree) {
@@ -30,33 +36,34 @@ namespace argos{
             SlotRadioActuator* actuator;
             SlotRadioSensor* sensor;
         };
-        // This map is indexed by SlotRadioSensor* to ensure rxFrames is ordered equivalently to the sensor set.
+        // This map is indexed by robot id string to ensure rxFrames is ordered equivalently to the sensor set.
         // An InFlightFrame element in this map with a nullptr frame value indicates that a collision has occurred
-        std::map<SlotRadioSensor*, InFlightFrame> rxFrames;
-        std::set<ssize_t> channelBusy;
+        std::map<std::string, InFlightFrame> rxFrames;
+        std::set<std::string> channelBusy;
 
-        for (auto actuator : actuators) {
+        // For each transmission, compute which sensors receive them and store results into rxFrames
+        for (auto [actuatorRobotId, actuator] : actuators) {
             // Check if the actuator transmits a frame
-            actuator->sentFrame = (actuator->txPort != nullptr) && (!actuator->requireCCA || !channelBusy.contains(actuator->robot->GetIndex()));
+            actuator->sentFrame = (actuator->txPort != nullptr) && (!actuator->requireCCA || !channelBusy.contains(actuatorRobotId));
             // Unset gotAck for all actuators in this loop, subsequent loop will set it
             actuator->gotAck = false;
 
             if (actuator->sentFrame) {
                 const auto& txPosition = actuator->GetPosition();
 
-                for (auto sensor : sensors) {
+                for (auto [sensorRobotId, sensor] : sensors) {
                     const auto& rxPosition = sensor->GetPosition();
                     auto distance = (txPosition - rxPosition).Length();
 
                     if (rng->Uniform(CRange<Real>(0.0, 1.0)) < PDR(distance)) {
-                        auto [element, inserted] = rxFrames.emplace(sensor, InFlightFrame {actuator->txPort, actuator, sensor});
+                        auto [element, inserted] = rxFrames.emplace(sensorRobotId, InFlightFrame {actuator->txPort, actuator, sensor});
                         // Sensor has already received a frame => collision
                         if (!inserted) {
                             element->second.frame = nullptr;
                         }
 
                         // If a sensor receives a frame, then mark channel busy for the corresponding robot
-                        channelBusy.emplace(sensor->robot->GetIndex());
+                        channelBusy.emplace(sensorRobotId);
                     }
                 }
 
@@ -65,14 +72,14 @@ namespace argos{
         }
 
         // Deliver frames to the receiving sensors
-        // rxFrames is a map indexed by sensor-pointer, while sensors is a set of sensor-pointers, so correct ordering
-        // is guaranteed by underlying datatype
+        // Both sensors and rxFrames are maps indexed by sensor robot id, so correct (i.e. equivalent) ordering is
+        // guaranteed by the underlying datatype
         auto rxFramesIterator = rxFrames.begin();
         auto sensorIterator = sensors.begin();
         while (sensorIterator != sensors.end()) {
-            const auto sensor = *sensorIterator;
-            const auto& [frameSensor,frameStruct] = *rxFramesIterator;
-            if (sensor == frameSensor) {
+            const auto sensor = sensorIterator->second;
+            const auto& frameStruct = rxFramesIterator->second;
+            if (sensor == frameStruct.sensor) {
                 if (frameStruct.frame != nullptr) {
                     sensor->rxPort = frameStruct.frame;
 

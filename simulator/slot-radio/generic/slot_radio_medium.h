@@ -30,8 +30,8 @@ namespace argos {
         }
 
     private:
-        std::set<SlotRadioActuator*> actuators;
-        std::set<SlotRadioSensor*> sensors;
+        std::map<std::string, SlotRadioActuator*> actuators;
+        std::map<std::string, SlotRadioSensor*> sensors;
 
         void RegisterActuator(SlotRadioActuator* actuator);
         void RegisterSensor(SlotRadioSensor* sensor);
