@@ -1,27 +1,15 @@
 #include "AirTightActuator.h"
 #include <argos3/core/simulator/simulator.h>
-#include <numeric>
 
 namespace argos {
-
-    void AirTightActuator::Init(TConfigurationNode& t_tree) {
-        SlotRadioActuator::Init(t_tree);
-        std::string mediumName;
-        GetNodeAttribute(t_tree, "medium", mediumName);
-        medium = &CSimulator::GetInstance().GetMedium<SlotRadioMedium>(mediumName);
-
-        //FaultLoadDYNLUT(0, 1000);
-    }
-
     void AirTightActuator::Update() {
         const auto& clock = CSimulator::GetInstance().GetSpace().GetSimulationClock();
 
-        bool ack = medium->ReceiveAck(this);
-
-        if (txBuffer == nullptr && ack) {
-            THROW_ARGOSEXCEPTION("Got ack from empty tx buffer");
+        if (GotAck() && txBuffer != nullptr) {
+            txBuffer->buffer.pop_front();
         }
-        else if (txBuffer != nullptr && !ack) {
+        // Expected ack didn't arrive
+        else if (txBuffer != nullptr) {
             // Handle failed TX
             ++failedTransmissions;
 
@@ -49,8 +37,9 @@ namespace argos {
                 }
             }
         }
-        else if (ack) {
-            txBuffer->buffer.pop_front();
+        // Unexpected ack
+        else if (GotAck()) {
+            THROW_ARGOSEXCEPTION("Got ack from empty tx buffer");
         }
 
         // Reset txBuffer
@@ -73,24 +62,25 @@ namespace argos {
                 failedTransmissions = 0;
             }
             else {
-                medium->PushFrame(txBuffer->buffer.front(), this);
+                txPort = &txBuffer->buffer.front();
                 ++busyPeriodDuration;
             }
         }
     }
 
-    void AirTightActuator::QueueFrame(const std::string& bufferName, const RadioMessage& message) {
+    void AirTightActuator::QueueFrame(const std::string& bufferName, const std::any& message) {
         const auto clock = CSimulator::GetInstance().GetSpace().GetSimulationClock();
         const auto flowID = GetBufferID(bufferName);
         auto& buffer = buffers[flowID];
 
-        RadioFrame frame = {robot->GetId(),
+        /*AirTightFrame frame = {robot->GetId(),
                             buffer.recipient,
                             buffer.name,
                             message,
-                            std::max(buffer.nextFrameTime, clock)};
+                            std::max(buffer.nextFrameTime, clock)};*/
         if (!highCriticalityMode || buffer.highCriticality) {
-            buffer.buffer.emplace_back(frame);
+            buffer.buffer.emplace_back(robot->GetId(), buffer.recipient, buffer.name, message, std::max(buffer.nextFrameTime, clock));
+            //buffer.buffer.emplace_back(frame);
             buffer.nextFrameTime = std::max(buffer.nextFrameTime, clock) + buffer.period;
         }
     }

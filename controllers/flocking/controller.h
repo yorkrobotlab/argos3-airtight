@@ -1,12 +1,14 @@
-#ifndef CIRCLE_CONTROLLER
-#define CIRCLE_CONTROLLER
+#ifndef FLOCKING_CONTROLLER
+#define FLOCKING_CONTROLLER
 
 #include <argos3/core/control_interface/ci_controller.h>
 #include <argos3/core/utility/math/quaternion.h>
 #include <argos3/core/utility/math/rng.h>
 #include <argos3/core/utility/math/vector3.h>
+#include <argos3/plugins/robots/generic/control_interface/ci_positioning_sensor.h>
 #include <argos3/plugins/robots/pi-puck/control_interface/ci_pipuck_differential_drive_actuator.h>
 #include <argos3/plugins/robots/pi-puck/control_interface/ci_pipuck_rangefinders_sensor.h>
+
 #include <vector>
 #include <queue>
 #include <set>
@@ -20,9 +22,9 @@ namespace argos {
    class CFlockingController : public CCI_Controller {
 
    public:
-       CFlockingController() {}
+       CFlockingController() = default;
 
-       virtual ~CFlockingController() {}
+       virtual ~CFlockingController() = default;
 
        virtual void Init(TConfigurationNode& t_tree);
 
@@ -34,15 +36,12 @@ namespace argos {
        UInt32 controlPeriod;
        CI_SlotRadioActuator* radioActuator;
        CI_SlotRadioSensor* radioSensor;
-       BigLEDActuator* ledActuator;
        CCI_PiPuckDifferentialDriveActuator* driveActuator;
        CCI_PiPuckRangefindersSensor* rangeFinder;
+       CCI_PositioningSensor* positionSensor;
 
        CRandom::CRNG* rng;
        UInt32 nodeID;
-
-       CVector3 position;
-       CQuaternion orientation;
 
        std::map<UInt32, std::pair<CVector3, CVector3>> nodePositions;
        CVector3 goalPosition;
@@ -51,8 +50,6 @@ namespace argos {
 
        bool dataSinkNode = false;
        std::set<std::pair<UInt32, UInt32>> dataSink;
-
-       //std::pair<Real, Real> moves[controlPeriod];
    };
 }
 

@@ -2,37 +2,42 @@
 #include <argos3/core/simulator/simulator.h>
 
 namespace argos {
+
     void NaiveP2PActuator::Init(TConfigurationNode &t_tree) {
         SlotRadioActuator::Init(t_tree);
-        std::string mediumName;
-        GetNodeAttribute(t_tree, "medium", mediumName);
-        medium = &CSimulator::GetInstance().GetMedium<SlotRadioMedium>(mediumName);
+        SetRequireCCA(true);
     }
 
     void NaiveP2PActuator::Update() {
-        bool gotAck = medium->ReceiveAck(this);
+        // If we didn't send a frame due to CCA failure, we no longer expect an ack
+        if (expectAck && !SentFrame()) {
+            expectAck = false;
+        }
 
-        if (expectAck && gotAck) {
+        // Got an ack
+        if (expectAck && GotAck()) {
             queuedFrames.pop();
             retries = 0;
         }
-        else if (gotAck) {
-            THROW_ARGOSEXCEPTION("Got unexpected ack?");
-        }
+        // Expected an ack that never happened
         else if (expectAck) {
             if (retries < maxRetries) {
                 retries++;
                 backoffRemaining = rng->Uniform(CRange<UInt32>(0, 1 << std::min(retries, maxBackoffExp)));
-                //LOG << "BACKOFF: " << backoffRemaining << "\n";
             }
             else {
                 queuedFrames.pop();
                 retries = 0;
             }
         }
+        // Unexpected ack
+        else if (GotAck()) {
+            THROW_ARGOSEXCEPTION("Got unexpected ack?");
+        }
 
-        if (!queuedFrames.empty() && backoffRemaining == 0 && !(medium->CarrierSenseBusy(this))) {
-            medium->PushFrame(queuedFrames.front(), this);
+
+        if (!queuedFrames.empty() && backoffRemaining == 0) {
+            txPort = &queuedFrames.front();
             expectAck = true;
         }
         else {
@@ -40,7 +45,6 @@ namespace argos {
         }
 
         if (backoffRemaining > 0) {
-            //LOG << "Backoff: " << backoffRemaining << "\n";
             backoffRemaining--;
         }
     }
@@ -54,10 +58,10 @@ namespace argos {
         expectAck = false;
     }
 
-    void NaiveP2PActuator::QueueFrame(const std::string &buffer, const RadioMessage &message) {
+    void NaiveP2PActuator::QueueFrame(const std::string &buffer, const std::any& message) {
         const auto clock = CSimulator::GetInstance().GetSpace().GetSimulationClock();
         for(const auto& node : recipients[buffer]) {
-            queuedFrames.emplace(RadioFrame {robot->GetId(), node, "", message, clock});
+            queuedFrames.emplace(robot->GetId(), node, message);
         }
     }
 

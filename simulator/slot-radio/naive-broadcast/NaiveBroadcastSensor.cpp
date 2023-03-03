@@ -1,23 +1,13 @@
 #include <argos3/core/simulator/simulator.h>
 #include "NaiveBroadcastSensor.h"
 
-
 namespace argos {
-    void NaiveBroadcastSensor::Init(TConfigurationNode &t_tree) {
-        SlotRadioSensor::Init(t_tree);
-        std::string mediumName;
-        GetNodeAttribute(t_tree, "medium", mediumName);
-        medium = &CSimulator::GetInstance().GetMedium<SlotRadioMedium>(mediumName);
-    }
-
     void NaiveBroadcastSensor::Update() {
-        auto frameStruct = medium->ReceiveFrame(this);
+        receivedFrame.reset();
 
-        if (frameStruct == nullptr) {
-            receivedFrame.reset();
-        }
-        else {
-            receivedFrame.emplace(frameStruct->frame);
+        auto frame = dynamic_cast<const NaiveBroadcastFrame*>(rxPort);
+        if (frame != nullptr) {
+            receivedFrame.emplace(*frame);
         }
     }
 
@@ -29,7 +19,7 @@ namespace argos {
         return (receivedFrame.has_value() && receivedFrame->frameFrom != robot->GetId());
     }
 
-    const RadioMessage &NaiveBroadcastSensor::GetMessage() {
+    const std::any& NaiveBroadcastSensor::GetMessage() {
         if (HasFrame()) {
             return receivedFrame->frameMsg;
         }
@@ -46,4 +36,4 @@ namespace argos {
                     "Brief Description",
                     "Long Description",
                     "status")
-} // argos
+}

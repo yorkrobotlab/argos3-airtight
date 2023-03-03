@@ -4,15 +4,17 @@
 namespace argos {
     void NaiveBroadcastActuator::Init(TConfigurationNode &t_tree) {
         SlotRadioActuator::Init(t_tree);
-        std::string mediumName;
-        GetNodeAttribute(t_tree, "medium", mediumName);
-        medium = &CSimulator::GetInstance().GetMedium<SlotRadioMedium>(mediumName);
+        SetRequireCCA(true);
     }
 
     void NaiveBroadcastActuator::Update() {
-        if (!queuedFrames.empty() && !(medium->CarrierSenseBusy(this))) {
-            medium->PushFrame(queuedFrames.front(), this);
+        // If we transmitted a frame last time
+        if (SentFrame()) {
             queuedFrames.pop();
+        }
+
+        if (!queuedFrames.empty()) {
+            txPort = &queuedFrames.front();
         }
     }
 
@@ -22,11 +24,9 @@ namespace argos {
         }
     }
 
-
-    void NaiveBroadcastActuator::QueueFrame(const std::string &buffer, const RadioMessage &message) {
-        const auto clock = CSimulator::GetInstance().GetSpace().GetSimulationClock();
+    void NaiveBroadcastActuator::QueueFrame(const std::string &buffer, const std::any& message) {
         for(int i=0; i<=numRepeats; i++) {
-            queuedFrames.emplace(RadioFrame{robot->GetId(), "", "", message, clock});
+            queuedFrames.emplace(robot->GetId(), "", message);
         }
     }
 

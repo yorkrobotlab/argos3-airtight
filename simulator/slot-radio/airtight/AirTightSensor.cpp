@@ -9,30 +9,28 @@ namespace argos {
 
     void AirTightSensor::Init(TConfigurationNode& t_tree) {
         SlotRadioSensor::Init(t_tree);
-        std::string mediumName;
-        GetNodeAttribute(t_tree, "medium", mediumName);
-        medium = &CSimulator::GetInstance().GetMedium<SlotRadioMedium>(mediumName);
-        //rng = CRandom::CreateRNG("argos");
         actuator = robot->GetComponent<CControllableEntity>("controller").GetController().GetActuator<AirTightActuator>("slot_radio");
     }
 
     void AirTightSensor::Update() {
-        auto frameStruct = medium->ReceiveFrame(this);
+        receivedFrame.reset();
+        if (rxPort != nullptr) {
+            auto frame = dynamic_cast<const AirTightFrame*>(rxPort);
 
-        if (frameStruct == nullptr) {
-            receivedFrame.reset();
-        }
-        else {
-            const auto &frame = frameStruct->frame;
-            receivedFrame.emplace(frame);
-            if (frame.frameTo == robot->GetId()) {
-                medium->PushAck(frameStruct, this);
+            // frame is nullptr is received frame was not an AirTightFrame
+            if (frame == nullptr) {
+                // We might eventually want some handling here at some point for mixed protocol tests, but just throw
+                // for now.
+                THROW_ARGOSEXCEPTION("AirTightSensor got frame that wasn't AirTightFrame");
+            }
+            else if (frame->frameTo == robot->GetId()) {
+                receivedFrame.emplace(*frame);
 
-                auto fwdIt = fwdMap.find(std::make_pair(frame.frameFrom, frame.frameOriginBuffer));
+                auto fwdIt = fwdMap.find(std::make_pair(receivedFrame->frameFrom, receivedFrame->frameOriginBuffer));
                 if (fwdIt != fwdMap.end()) {
-                    if (frame.queueTime != fwdIt->second.second) {
-                        fwdIt->second.second = frame.queueTime;
-                        actuator->QueueFrame(fwdIt->second.first, frame.frameMsg);
+                    if (receivedFrame->queueTime != fwdIt->second.second) {
+                        fwdIt->second.second = receivedFrame->queueTime;
+                        actuator->QueueFrame(fwdIt->second.first, receivedFrame->frameMsg);
                     }
                     else {
                         //LOG << "Dropping duplicate frame, assuming failed ack\n";
@@ -70,7 +68,7 @@ namespace argos {
         return (receivedFrame.has_value() && receivedFrame->frameTo == robot->GetId());
     }
 
-    const RadioMessage& AirTightSensor::GetMessage() {
+    const std::any& AirTightSensor::GetMessage() {
         if (HasFrame()) {
             return receivedFrame->frameMsg;
         }

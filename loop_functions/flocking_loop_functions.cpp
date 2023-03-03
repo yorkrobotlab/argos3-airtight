@@ -8,21 +8,14 @@ namespace argos {
     void FlockingLoopFunctions::Init(TConfigurationNode &t_tree) {
         const auto nodes = CSimulator::GetInstance().GetSpace().GetEntitiesByType("pipuck");
 
-        // Ensure there are node hash collisions for node IDs
         for(const auto& [node_id, node_container] : nodes) {
             auto entity = any_cast<CPiPuckEntity*>(node_container);
-            auto controller = dynamic_cast<CFlockingController*>(&(entity->GetControllableEntity().GetController()));
-            auto& position = entity->GetEmbodiedEntity().GetOriginAnchor().Position;
-
-            auto [iterator, success] = nodePositions.insert({controller->nodeID, position});
-            if (!success) {
-                THROW_ARGOSEXCEPTION("Node ID Hash Collision");
-            }
+            const auto& position = entity->GetEmbodiedEntity().GetOriginAnchor().Position;
+            nodePositions.emplace(entity->GetIndex(), position);
         }
     }
 
     void FlockingLoopFunctions::PreStep() {
-        UInt32 clock = CSimulator::GetInstance().GetSpace().GetSimulationClock();
         CVector3 mean_velocity, centroid;
         auto nodes = CSimulator::GetInstance().GetSpace().GetEntitiesByType("pipuck");
         for(auto& [node_id, node_container] : nodes) {
@@ -32,24 +25,13 @@ namespace argos {
             auto& position = anchor.Position;
             auto& orientation = anchor.Orientation;
 
-            // LOG << "ORIENTATION: " << orientation.GetW() << " " << orientation.GetX() << " " << orientation.GetY() << " " << orientation.GetZ() << "\n";
-
-            auto controller = dynamic_cast<CFlockingController*>(&(entity->GetControllableEntity().GetController()));
-            if (controller == nullptr) {
-                THROW_ARGOSEXCEPTION("Controller is not a flocking controller?")
-            }
-            else {
-                controller->position = position;
-                controller->orientation = orientation;
-            }
-
-            mean_velocity += position - nodePositions[controller->nodeID];
-            nodePositions[controller->nodeID] = CVector3(position);
+            mean_velocity += position - nodePositions[entity->GetIndex()];
+            nodePositions[entity->GetIndex()] = CVector3(position);
             centroid += position;
         }
         centroid /= nodes.size();
         Real maxCentroidDistance = 0.0;
-        for (auto &[node_id, position]: nodePositions) {
+        for (auto &[entity_index, position]: nodePositions) {
             auto distance = (position - centroid).Length();
             if (distance > maxCentroidDistance) {
                 maxCentroidDistance = distance;

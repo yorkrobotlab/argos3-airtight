@@ -44,35 +44,36 @@ namespace argos {
    /****************************************/
 
    void CTestController::ControlStep() {
+       // Message Struct Definitions
+       struct LEDMessage {
+           UInt32 clock, originNode;
+           CColor newColour;
+           UInt32 switchTime;
+       };
+
+       struct MOVMessage {
+            UInt32 clock, originNode, start, speed;
+       };
+
        // Get current clock
        UInt32 clock = CSimulator::GetInstance().GetSpace().GetSimulationClock();
 
        // Receive messages
        if (radioSensor->HasFrame()) {
-           const auto& msg = radioSensor->GetMessage();
+           const auto& rawMsg = radioSensor->GetMessage();
 
-           // LED Frame {'L', clock, nodeID, colour, switch_time}
-           if (msg[0] == 'L') {
-               const auto& originNode = msg[2];
-               const auto *colourValues = reinterpret_cast<const UInt8 *>(&msg[3]);
-               const auto& switchTime = msg[4];
-
-               scheduledLEDs.emplace(std::make_pair(switchTime, originNode),
-                                     CColor(colourValues[0], colourValues[1], colourValues[2]));
+           // LED Frame
+           if (rawMsg.type() == typeid(LEDMessage)) {
+               const auto& msg = any_cast<const LEDMessage>(rawMsg);
+               scheduledLEDs.emplace(std::make_pair(msg.switchTime, msg.originNode), msg.newColour);
            }
-
-           // Movement Frame {'M', clock, nodeID, start, speed}
-           else if (msg[0] == 'M') {
-               const auto& originNode = msg[2];
-               const auto& start = msg[3];
-               const auto& speed = msg[4];
-
-               scheduledSpeed.emplace(std::make_pair(start, originNode), speed);
+           else if (rawMsg.type() == typeid(MOVMessage)) {
+               const auto& msg = any_cast<const MOVMessage>(rawMsg);
+               scheduledSpeed.emplace(std::make_pair(msg.start, msg.originNode), msg.speed);
            }
-
            // We shouldn't end up here
            else {
-               THROW_ARGOSEXCEPTION("Received unhandled frame type");
+               THROW_ARGOSEXCEPTION("Received unhandled frame type ");
            }
        }
 
@@ -81,25 +82,25 @@ namespace argos {
            /*auto r = rng->Uniform(CRange<UInt32>(1, 6))*51;
            auto g = rng->Uniform(CRange<UInt32>(1, 6))*51;
            auto b = rng->Uniform(CRange<UInt32>(1, 6))*51;*/
-           auto r = rng->Uniform(CRange<UInt32>(0, 256));
-           auto g = rng->Uniform(CRange<UInt32>(0, 256));
-           auto b = rng->Uniform(CRange<UInt32>(0, 256));
+           UInt8 r = rng->Uniform(CRange<UInt32>(0, 256));
+           UInt8 g = rng->Uniform(CRange<UInt32>(0, 256));
+           UInt8 b = rng->Uniform(CRange<UInt32>(0, 256));
            auto newColour = CColor(r, g, b);
 
            // Pick future time for change to take effect
-           UInt32 switch_time = clock + 200; //rng->Uniform(CRange<UInt32>(clock+200, clock+450));
+           UInt32 switchTime = clock + 200; //rng->Uniform(CRange<UInt32>(clock+200, clock+450));
 
            // Store change locally
-           scheduledLEDs.emplace(std::make_pair(switch_time, nodeID), newColour);
+           scheduledLEDs.emplace(std::make_pair(switchTime, nodeID), newColour);
 
            // Send change message
-           radioActuator->QueueFrame("led", {'L', clock, nodeID, newColour, switch_time});
+           radioActuator->QueueFrame("led", LEDMessage {clock, nodeID, newColour, switchTime});
 
            // Update last switch time to enforce inter-arrival period
            lastLocalLedSwitch = clock;
 
            // Register correct colour in loop function for data logging
-           dynamic_cast<CircleLoopFunctions*>(&CSimulator::GetInstance().GetLoopFunctions())->SetCorrectColour(switch_time, nodeID, newColour);
+           dynamic_cast<CircleLoopFunctions*>(&CSimulator::GetInstance().GetLoopFunctions())->SetCorrectColour(switchTime, nodeID, newColour);
        }
 
        if (clock - lastMove >= 500 && rng->Uniform(CRange<Real>(0.0, 1.0)) < 0.01) {
@@ -108,7 +109,7 @@ namespace argos {
            auto speed = rng->Uniform(CRange<UInt32>(0, 3)) * nodeSpeedBias;
 
            scheduledSpeed.emplace(std::make_pair(start, nodeID), speed);
-           radioActuator->QueueFrame("mov", {'M', clock, nodeID, start, speed});
+           radioActuator->QueueFrame("mov", MOVMessage {clock, nodeID, start, speed});
            lastMove = clock;
        }
 

@@ -1,29 +1,27 @@
 #ifndef ARGOS3_AIRTIGHT_NAIVEBROADCASTSENSOR_H
 #define ARGOS3_AIRTIGHT_NAIVEBROADCASTSENSOR_H
 
+#include <any>
 #include <optional>
-//#include <argos3/core/simulator/sensor.h>
-//#include <argos3/core/simulator/entity/composable_entity.h>
-//#include "control_interface/ci_slot_radio_sensor.h"
-#include "../slot_radio_medium.h"
-#include "../generic/slot_radio_sensor.h"
+
+#include "slot-radio/generic/slot_radio_medium.h"
+#include "slot-radio/generic/slot_radio_sensor.h"
+#include "NaiveBroadcastFrame.h"
 
 namespace argos {
 
     class NaiveBroadcastSensor : public SlotRadioSensor  {
     public:
-        void Init(TConfigurationNode& t_tree) override;
         void Update() override;
         void Reset() override;
 
         void SetRobotConfiguration(TConfigurationNode &t_tree) override {};
 
         bool HasFrame() override;
-        const RadioMessage& GetMessage() override;
+        const std::any& GetMessage() override;
 
     private:
-        SlotRadioMedium* medium;
-        std::optional<RadioFrame> receivedFrame;
+        std::optional<NaiveBroadcastFrame> receivedFrame;
     };
 
 } // argos

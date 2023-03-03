@@ -15,7 +15,7 @@ namespace argos {
         bool IsExperimentFinished() override;
     private:
         bool isFinished = false;
-        std::map<UInt32, CVector3> nodePositions;
+        std::map<ssize_t, CVector3> nodePositions;
         Real meanVelocity = 0.0;
         Real meanMaxCentroidDistance = 0.0;
     };

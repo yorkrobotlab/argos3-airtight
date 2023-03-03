@@ -3,21 +3,14 @@
 
 
 namespace argos {
-    void NaiveP2PSensor::Init(TConfigurationNode &t_tree) {
-        SlotRadioSensor::Init(t_tree);
-        std::string mediumName;
-        GetNodeAttribute(t_tree, "medium", mediumName);
-        medium = &CSimulator::GetInstance().GetMedium<SlotRadioMedium>(mediumName);
-    }
-
     void NaiveP2PSensor::Update() {
-        auto frameStruct = medium->ReceiveFrame(this);
+        receivedFrame.reset();
 
-        if (frameStruct != nullptr) {
-            if (frameStruct->frame.frameTo == robot->GetId()) {
-                medium->PushAck(frameStruct, this);
+        auto frame = dynamic_cast<const NaiveP2PFrame*>(rxPort);
+        if (frame != nullptr) {
+            if (frame->frameTo == robot->GetId()) {
+                receivedFrame.emplace(*frame);
             }
-            receivedFrame.emplace(frameStruct->frame);
         }
     }
 
@@ -29,7 +22,7 @@ namespace argos {
         return (receivedFrame.has_value() && receivedFrame->frameTo == robot->GetId());
     }
 
-    const RadioMessage &NaiveP2PSensor::GetMessage() {
+    const std::any& NaiveP2PSensor::GetMessage() {
         if (HasFrame()) {
             return receivedFrame->frameMsg;
         }
@@ -46,4 +39,4 @@ namespace argos {
                     "Brief Description",
                     "Long Description",
                     "status")
-} // argos
+}

@@ -1,6 +1,7 @@
 #ifndef ARGOS3_AIRTIGHT_AIRTIGHTACTUATOR_H
 #define ARGOS3_AIRTIGHT_AIRTIGHTACTUATOR_H
 
+#include <any>
 #include <atomic>
 #include <map>
 #include <vector>
@@ -9,27 +10,22 @@
 #include <argos3/core/simulator/entity/composable_entity.h>
 
 #include "AirTightBuffer.h"
-#include "../slot_radio_medium.h"
+#include "../generic/slot_radio_medium.h"
 #include "../generic/slot_radio_actuator.h"
 
 namespace argos {
     class AirTightActuator : public SlotRadioActuator {
 
     public:
-        AirTightActuator() : txBuffer(nullptr), medium(nullptr) {};
-
-        void Init(TConfigurationNode &t_tree) override;
-
         void Update() override;
 
         void Reset() override;
 
         void SetRobotConfiguration(TConfigurationNode &t_tree) override;
 
-        void QueueFrame(const std::string &bufferName, const RadioMessage &message) override;
+        void QueueFrame(const std::string &bufferName, const std::any& message) override;
 
     private:
-        SlotRadioMedium* medium;
         std::vector<bool> txSlots;
         std::vector<AirTightBuffer> buffers;
         AirTightBuffer *txBuffer;

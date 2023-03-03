@@ -1,17 +1,26 @@
-// Circle Controller
+// Flocking Controller
 
 #include "controller.h"
 
 #include <argos3/core/utility/logging/argos_log.h>
 #include <argos3/core/simulator/simulator.h>
-#include <argos3/core/simulator/space/space.h>
 #include <optional>
 #include <functional>
 
-#include "../../loop_functions/circle_loop_functions.h"
 #include "simulator/slot-radio/airtight/AirTightActuator.h"
 
 namespace argos {
+
+    struct FlockingMessage {
+        UInt32 clock;
+        UInt32 nodeID;
+        CVector3 position;
+        CVector3 velocity;
+    };
+    struct DataMessage {
+        UInt32 nodeID;
+        UInt32 clock;
+    };
 
    /****************************************/
    /****************************************/
@@ -28,8 +37,7 @@ namespace argos {
 
        rangeFinder = GetSensor<CCI_PiPuckRangefindersSensor>("pipuck_rangefinders");
 
-       //ledActuator = GetActuator<BigLEDActuator>("big_leds");
-       //ledActuator->SetLEDOn(true);
+       positionSensor = GetSensor<CCI_PositioningSensor>("positioning");
 
        // ARGoS node IDs are strings, but a numeric ID is more convenient
        nodeID = std::hash<std::string>{}(GetId());
@@ -40,10 +48,8 @@ namespace argos {
            THROW_ARGOSEXCEPTION("Expected 10ms time slots");
        }
 
-       position = CVector3();
-       goalPosition = CVector3(position);
-
-       //nodePositions[]
+       // position = CVector3();
+       // goalPosition = CVector3(position);
 
        controlPeriod = stoi(t_tree.GetAttribute("controlPeriod"));
 
@@ -87,24 +93,29 @@ namespace argos {
        };
        rangeFinder->Visit(visitFn);
 
+       // Get position
+       auto positionSensorReading = positionSensor->GetReading();
+       const auto position = positionSensorReading.Position;
+       const auto orientation = positionSensorReading.Orientation;
+
 
        // Receive Positions
        if (radioSensor->HasFrame()) {
-           const auto& msg = radioSensor->GetMessage();
+           const auto& rawMsg = radioSensor->GetMessage();
 
-           if (msg[0] == 'P') {
-               if (msg[1] >= clock) {
-                   nodePositions[msg[2]] = std::make_pair(
-                           CVector3(static_cast<int>(msg[3]) / 100.0, static_cast<int>(msg[4]) / 100.0, 0.0),
-                           CVector3(static_cast<int>(msg[5]) / 100.0, static_cast<int>(msg[6]) / 100.0, 0.0));
+           if (rawMsg.type() == typeid(FlockingMessage)) {
+               const auto& msg = any_cast<const FlockingMessage>(rawMsg);
+               if (msg.clock >= clock) {
+                   nodePositions[msg.nodeID] = std::make_pair(msg.position, msg.velocity);
                }
                else {
                    RLOG << "Discarding late message\n";
                }
            }
-           else if (msg[0] == 'D') {
+           else if (rawMsg.type() == typeid(DataMessage)) {
+               const auto& msg = any_cast<const DataMessage>(rawMsg);
                if (dataSinkNode) {
-                   dataSink.emplace(msg[1], msg[2]);
+                   dataSink.emplace(msg.nodeID, msg.clock);
                }
            }
            else {
@@ -114,7 +125,7 @@ namespace argos {
 
        if (!dataSinkNode && (clock % 33) == 1) {
            // Pretend we've got some important data packet
-           radioActuator->QueueFrame("data", {'D', nodeID, clock});
+           radioActuator->QueueFrame("data", DataMessage {nodeID, clock});
        }
 
        if (clock % controlPeriod == 1) {
@@ -252,14 +263,7 @@ namespace argos {
 
            // Transmit
            for(auto& buffer : positionFlows) {
-               radioActuator->QueueFrame(buffer,
-                                         {'P',
-                                          clock + controlPeriod,
-                                          nodeID,
-                                          static_cast<unsigned int>(static_cast<int>(goalPosition.GetX() * 100)),
-                                          static_cast<unsigned int>(static_cast<int>(goalPosition.GetY() * 100)),
-                                          static_cast<unsigned int>(static_cast<int>(goal.GetX() * 100)),
-                                          static_cast<unsigned int>(static_cast<int>(goal.GetY() * 100))});
+               radioActuator->QueueFrame(buffer, FlockingMessage {clock+controlPeriod, nodeID, goalPosition, goal});
            }
            nodePositions[nodeID] = std::make_pair(goalPosition, goal);
        }
@@ -282,13 +286,13 @@ namespace argos {
            double lWheel = 0.0;
            double rWheel = 0.0;
 
+           // 0.565: PiPuck interwheel distance
            auto wheelDiff = (rotationGoal.GetValue() / 2) * 0.0565 * 100;
            lWheel += wheelDiff;
            rWheel -= wheelDiff;
 
            if ((rotationGoal.GetAbsoluteValue() < CRadians::PI_OVER_TWO.GetValue()) &&
                     (proxReadings[0] >= 0.085) && (proxReadings[7] >= 0.085)) {
-               //RLOG << "Move\n";
                lWheel += 100 * (goalPosition - position).Length() / (controlPeriod - (clock % controlPeriod));
                rWheel += 100 * (goalPosition - position).Length() / (controlPeriod - (clock % controlPeriod));
            }
