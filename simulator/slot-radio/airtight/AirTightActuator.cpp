@@ -154,9 +154,9 @@ namespace argos {
         }
 
         ComputeResponseTimes(&buffers, txSlots);
-        //for(const auto& buffer : buffers) {
-        //    LOG << "BUFFER: RLo: " << buffer.responseTime[0] << " RHi: " << buffer.responseTime[1] << "\n";
-        //}
+        for(const auto& buffer : buffers) {
+            LOG << "BUFFER: RLo: " << buffer.responseTime[0] << " RHi: " << buffer.responseTime[1] << "\n";
+        }
     }
 
     UInt32 AirTightActuator::FaultLoad(UInt32 slots, bool highCriticality) {

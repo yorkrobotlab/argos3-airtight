@@ -22,3 +22,20 @@ add_library(flocking_loop_functions SHARED
 target_link_libraries(flocking_loop_functions
         argos3core_simulator
         argos3plugin_simulator_pipuck)
+
+add_library(dfrontier_opengl_functions SHARED
+        dfrontier_opengl_functions.h
+        dfrontier_opengl_functions.cpp)
+
+target_link_libraries(dfrontier_opengl_functions
+        argos3core_simulator
+        argos3plugin_simulator_pipuck
+        argos3plugin_simulator_qtopengl)
+
+add_library(dfrontier_loop_functions SHARED
+        dfrontier_loop_functions.h
+        dfrontier_loop_functions.cpp)
+
+target_link_libraries(dfrontier_loop_functions
+        argos3core_simulator
+        argos3plugin_simulator_pipuck)

@@ -1,0 +1,1 @@
+add_library(dfrontier_controller MODULE coverage_matrix.h controller.h controller.cpp coverage_matrix.cpp)
