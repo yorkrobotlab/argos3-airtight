@@ -26,7 +26,8 @@ namespace argos {
         void Reset() override;
 
         inline Real PDR(Real distance) const {
-            return pdrModifier * ((distance < 1.5) ? 0.99 : 0.99 / (1.0 + pow((distance-1.5)/3.0, 2.0)));
+            auto k = (distance - dropoffStart) / dropoffFactor;
+            return pdrModifier * ((distance < dropoffStart) ? 1.0 : 1.0 / (1.0 + k*k));
         }
 
     private:
@@ -37,7 +38,7 @@ namespace argos {
         void RegisterSensor(SlotRadioSensor* sensor);
 
         CRandom::CRNG* rng = nullptr;
-        double pdrModifier = 1.0;
+        double pdrModifier, dropoffStart, dropoffFactor;
     };
 
 }

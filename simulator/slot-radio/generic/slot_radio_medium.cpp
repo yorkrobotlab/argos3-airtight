@@ -21,7 +21,9 @@ namespace argos{
     void SlotRadioMedium::Init(TConfigurationNode& t_tree) {
         CMedium::Init(t_tree);
         rng = CRandom::CreateRNG("argos");
-        pdrModifier = std::stod(t_tree.GetAttributeOrDefault("pdrModifier", "1.0"));
+        pdrModifier = std::stod(t_tree.GetAttributeOrDefault("pdrModifier", "0.99"));
+        dropoffStart = std::stod(t_tree.GetAttributeOrDefault("dropoffStart", "1.5"));
+        dropoffFactor = std::stod(t_tree.GetAttributeOrDefault("dropoffFactor", "3.0"));
     }
 
     void SlotRadioMedium::Reset() {
